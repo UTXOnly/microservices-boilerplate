@@ -20,6 +20,10 @@ python:
 go:
 	cd go && go run ./cmd/server
 
+# Run Rust service locally (requires Postgres)
+rust:
+	cd rust && cargo run
+
 # Remove containers and volumes
 clean:
 	docker compose down -v

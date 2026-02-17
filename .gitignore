@@ -30,6 +30,9 @@ wheels/
 venv/
 ENV/
 
+# Rust
+target/
+
 # Go
 *.exe
 *.exe~

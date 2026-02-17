@@ -1,6 +1,6 @@
 # Microservices Boilerplate
 
-Production-ready boilerplate for building async microservices in **Python** (FastAPI + Pydantic) and **Go**. Both templates include async PostgreSQL, health checks, Docker support, and common microservice patterns.
+Production-ready boilerplate for building async microservices in **Python** (FastAPI + Pydantic), **Go**, and **Rust** (Axum + sqlx). All templates include async PostgreSQL, health checks, Docker support, and common microservice patterns.
 
 Use this to rapidly scaffold new microservices—copy a template, rename it, and start building.
 
@@ -16,6 +16,7 @@ docker compose up --build
 
 - **Python service**: http://localhost:8000  
 - **Go service**: http://localhost:8080  
+- **Rust service**: http://localhost:8081  
 - **PostgreSQL**: localhost:5432 (postgres/postgres)
 
 ### API Documentation
@@ -52,6 +53,15 @@ microservices-boilerplate/
 │   │   ├── handlers/      # HTTP handlers
 │   │   └── services/      # Business logic
 │   ├── go.mod
+│   └── Dockerfile
+├── rust/                   # Axum + sqlx + async Postgres
+│   ├── src/
+│   │   ├── main.rs        # Application entrypoint
+│   │   ├── config.rs      # Configuration
+│   │   ├── database.rs    # Connection pool + schema
+│   │   ├── models.rs      # Domain structs with serde
+│   │   └── handlers.rs    # HTTP handlers
+│   ├── Cargo.toml
 │   └── Dockerfile
 ├── docker-compose.yml
 └── README.md
@@ -153,9 +163,52 @@ go run ./cmd/server
 
 ---
 
+## Rust Microservice
+
+### Stack
+
+- **Axum** – Async web framework
+- **sqlx** – Async Postgres with connection pooling
+- **serde** – Serialization for JSON
+- **tokio** – Async runtime
+
+### Run Locally
+
+```bash
+cd rust
+cp .env.example .env        # Edit if needed
+cargo run
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/config.rs` | Env-based config |
+| `src/database.rs` | Pool, schema init |
+| `src/models.rs` | Structs with serde (Create, Read, Update) |
+| `src/handlers.rs` | HTTP handlers |
+
+### Adding a New Resource
+
+1. Add model structs in `src/models.rs`
+2. Add handler logic in `src/handlers.rs`
+3. Register routes in `src/main.rs`
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `APP_NAME` | rust-microservice | Service name |
+| `PORT` | 8081 | Server port |
+| `DATABASE_URL` | postgres://... | Postgres connection string |
+| `RUST_LOG` | info | Log level |
+
+---
+
 ## API Endpoints
 
-Both services expose the same API surface (shared `items` table):
+All services expose the same API surface (shared `items` table):
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -170,7 +223,7 @@ Both services expose the same API surface (shared `items` table):
 ### Example: Create an Item
 
 ```bash
-curl -X POST http://localhost:8000/items \
+curl -X POST http://localhost:8081/items \
   -H "Content-Type: application/json" \
   -d '{"name": "My Item", "description": "A test item"}'
 ```
@@ -187,6 +240,7 @@ docker compose up -d
 
 # Specific service
 docker compose up -d python-service
+# or: go-service, rust-service
 
 # Rebuild after changes
 docker compose up --build -d
@@ -202,13 +256,16 @@ docker build -t my-python-service ./python
 
 # Go
 docker build -t my-go-service ./go
+
+# Rust
+docker build -t my-rust-service ./rust
 ```
 
 ---
 
 ## Using as a Template
 
-1. **Clone or copy** the repo or the specific `python/` or `go/` directory.
+1. **Clone or copy** the repo or the specific `python/`, `go/`, or `rust/` directory.
 2. **Rename** the service (app name, package names, Docker image).
 3. **Replace** the example `Item` model with your domain entities.
 4. **Add** your business logic in `services/`.

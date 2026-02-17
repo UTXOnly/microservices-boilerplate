@@ -59,5 +59,26 @@ services:
       retries: 3
       start_period: 10s
 
+  rust-service:
+    build:
+      context: ./rust
+      dockerfile: Dockerfile
+    container_name: microservices-rust
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/microservices
+      APP_NAME: rust-microservice
+      PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
 volumes:
   postgres_data:
